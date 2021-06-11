@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL33;
 
+import cz.educanet.Game;
 
 import static cz.educanet.Main.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -27,7 +28,7 @@ public class Window {
 
         // Create the window...
         // We can set multiple options with glfwWindowHint ie. fullscreen, resizability etc.
-        long window = GLFW.glfwCreateWindow(W, H, "Sprite", 0, 0);
+        long window = GLFW.glfwCreateWindow(W, H, "My first window", 0, 0);
         if (window == 0) {
             GLFW.glfwTerminate();
             throw new Exception("Can't open window");
@@ -36,7 +37,7 @@ public class Window {
 
         // Tell GLFW, that we are using OpenGL
         GL.createCapabilities();
-        GL33.glViewport(0, 0, 800, 600);
+        GL33.glViewport(0, 0, W, H);
 
         // Resize callback
         GLFW.glfwSetFramebufferSizeCallback(window, (win, w, h) -> {

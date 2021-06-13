@@ -19,16 +19,13 @@ public class Window {
         GLFW.glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);// To make MacOS happy; should not be needed
         GLFW.glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         GLFW.glfwWindowHint(GLFW_SAMPLES, 4);
-        //region: Window init
-        GLFW.glfwInit();
-        // Tell GLFW what version of OpenGL we want to use.
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
         // TODO: Add support for macOS
 
         // Create the window...
         // We can set multiple options with glfwWindowHint ie. fullscreen, resizability etc.
-        long window = GLFW.glfwCreateWindow(W, H, "My first window", 0, 0);
+        long window = GLFW.glfwCreateWindow(W, H, "Sprite", 0, 0);
         if (window == 0) {
             GLFW.glfwTerminate();
             throw new Exception("Can't open window");
@@ -37,7 +34,7 @@ public class Window {
 
         // Tell GLFW, that we are using OpenGL
         GL.createCapabilities();
-        GL33.glViewport(0, 0, W, H);
+        GL33.glViewport(0, 0, 800, 800);
 
         // Resize callback
         GLFW.glfwSetFramebufferSizeCallback(window, (win, w, h) -> {
@@ -71,4 +68,5 @@ public class Window {
         // Don't forget to cleanup
         GLFW.glfwTerminate();
     }
+
 }

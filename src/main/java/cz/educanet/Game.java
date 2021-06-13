@@ -1,7 +1,8 @@
 package cz.educanet;
 
-import cz.educanet.Shaders;
+
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
@@ -20,11 +21,6 @@ public class Game {
             -0.5f, 0.5f, 0.0f, // 3 -> Top left
     };
 
-    private static final int[] indices = {
-            0, 1, 3, // First triangle
-            1, 2, 3 // Second triangle
-    };
-
     public static final float[] colors = {
             1.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f,
@@ -32,46 +28,51 @@ public class Game {
             0.0f, 0.0f, 0.0f,
     };
 
-    public static final float[] snimek1 = {
+    public static final float[] textures1 = {
             1/6f, 0.0f,
             1/6f, 1.0f,
             0.0f, 1.0f,
             0.0f, 0.0f,
     };
 
-    public static final float[] snimek2 = {
+    public static final float[] textures2 = {
             2/6f, 0.0f,
             2/6f, 1.0f,
             1/6f, 1.0f,
             1/6f, 0.0f,
     };
 
-    public static final float[] snimek3 = {
+    public static final float[] textures3 = {
             3/6f, 0.0f,
             3/6f, 1.0f,
             2/6f, 1.0f,
             2/6f, 0.0f,
     };
 
-    public static final float[] snimek4 = {
+    public static final float[] textures4 = {
             4/6f, 0.0f,
             4/6f, 1.0f,
             3/6f, 1.0f,
             3/6f, 0.0f,
     };
 
-    public static final float[] snimek5 = {
+    public static final float[] textures5 = {
             5/6f, 0.0f,
             5/6f, 1.0f,
             4/6f, 1.0f,
             4/6f, 0.0f,
     };
 
-    public static final float[] snimek6 = {
+    public static final float[] textures6 = {
             1.0f, 0.0f,
             1.0f, 1.0f,
             5/6f, 1.0f,
             5/6f, 0.0f,
+    };
+
+    private static final int[] indices = {
+            0, 1, 3, // First triangle
+            1, 2, 3 // Second triangle
     };
 
     private static int squareVaoId;
@@ -135,27 +136,27 @@ public class Game {
     public static double frame = 1;
     public static void update(long window) {
 
-        float[] snimek = {};
-        float[][] sets = {Game.snimek1, Game.snimek2, Game.snimek3, Game.snimek4, Game.snimek5, Game.snimek6};
+        float[] textures = {};
+        float[][] sets = {Game.textures1, Game.textures2, Game.textures3, Game.textures4, Game.textures5, Game.textures6};
 
         switch((int) Game.frame) {
             case 1 -> {
-                snimek = snimek1;
+                textures = textures1;
             }
             case 2 -> {
-                snimek = snimek2;
+                textures = textures2;
             }
             case 3 -> {
-                snimek = snimek3;
+                textures = textures3;
             }
             case 4 -> {
-                snimek = snimek4;
+                textures = textures4;
             }
             case 5 -> {
-                snimek = snimek5;
+                textures = textures5;
             }
             case 6 -> {
-                snimek = snimek6;
+                textures = textures6;
             }
         }
 
@@ -166,8 +167,8 @@ public class Game {
         }
 
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, textureIndicesId);
-        FloatBuffer tb = BufferUtils.createFloatBuffer(snimek.length)
-                .put(snimek)
+        FloatBuffer tb = BufferUtils.createFloatBuffer(textures.length)
+                .put(textures)
                 .flip();
 
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER, tb, GL33.GL_STATIC_DRAW);

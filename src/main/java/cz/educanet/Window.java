@@ -29,7 +29,7 @@ public class Window {
         });
         Game.init(H,W);
         while (!GLFW.glfwWindowShouldClose(window)) {
-            current = (current+1)%(int) Game.frames;
+            current = (current+1)%(int) Main.snimky;
             // Key input management
             if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS)
                 GLFW.glfwSetWindowShouldClose(window, true);

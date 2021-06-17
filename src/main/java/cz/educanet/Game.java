@@ -12,11 +12,11 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static cz.educanet.Main.*;
+
 public class Game {
-    float imgWidth = 1152;
-    float imgHeight = 192;
-    float imgSize = 2;
-    float frames = 6;
+    float SirkaSnimku = 1152;
+    float VyskaSnimku = 192;
 
     private FloatBuffer tb1 = BufferUtils.createFloatBuffer(8);
 
@@ -53,8 +53,8 @@ public class Game {
     private FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
     public void setVertices(float width,float height){
-        float x = -imgWidth*imgSize/width;
-        float y = imgHeight*imgSize/height;
+        float x = -SirkaSnimku*VelikostSnimku/width;
+        float y = VyskaSnimku*VelikostSnimku/height;
         float sizeX = 2*Math.abs(x);
         float sizeY = 2*Math.abs(y);
         System.out.println(x + " : " + y+" : " +sizeX+ " : "+sizeY);
@@ -68,7 +68,7 @@ public class Game {
     }
 
     public void init(int width,int height) {
-        setVertices(width*frames, height);
+        setVertices(width*snimky, height);
         Shaders.initShaders();
         loadImage();
 
@@ -145,8 +145,8 @@ public class Game {
     public void update(float frame) {
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, textureIndicesId);
         tb1.clear().put(textures).flip();
-        float leftX = frame/frames;
-        float rightX = (frame+1)/frames;
+        float leftX = frame/snimky;
+        float rightX = (frame+1)/snimky;
 
         textures = new float[] {
                 rightX, 0.0f,// 0 -> Top right - tohle se musi menit kdyz chce jinou cast obrazku
@@ -168,7 +168,7 @@ public class Game {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer comp = stack.mallocInt(1);
 
-            ByteBuffer img = STBImage.stbi_load("res/img.png", w, h, comp, 3);
+            ByteBuffer img = STBImage.stbi_load(cesta, w, h, comp, 3);
             if (img != null) {
                 img.flip();
 

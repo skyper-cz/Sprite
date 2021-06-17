@@ -4,23 +4,17 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL33;
 
-import cz.educanet.Game;
-
 import static cz.educanet.Main.*;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_TRUE;
-
 
 public class Window {
     public static void Okno() throws Exception {
-
         Game game = new Game();
         int current = 0;
         GLFW.glfwInit();
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
 
-        long window = GLFW.glfwCreateWindow(800, 600, "Window", 0, 0);
+        long window = GLFW.glfwCreateWindow(H, W, "Sprite", 0, 0);
         if (window == 0) {
             GLFW.glfwTerminate();
             throw new Exception("Can't open window");
@@ -33,7 +27,7 @@ public class Window {
         GLFW.glfwSetFramebufferSizeCallback(window, (win, w, h) -> {
             GL33.glViewport(0, 0, w, h);
         });
-        game.init(800,600);
+        game.init(H,W);
         while (!GLFW.glfwWindowShouldClose(window)) {
             current = (current+1)%(int) game.frames;
             // Key input management

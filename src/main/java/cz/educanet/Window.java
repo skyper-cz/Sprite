@@ -8,13 +8,13 @@ import static cz.educanet.Main.*;
 
 public class Window {
     public static void Okno() throws Exception {
-        Game game = new Game();
+        Game Game = new Game();
         int current = 0;
         GLFW.glfwInit();
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
 
-        long window = GLFW.glfwCreateWindow(H, W, "Sprite", 0, 0);
+        long window = GLFW.glfwCreateWindow(W, H, "Sprite", 0, 0);
         if (window == 0) {
             GLFW.glfwTerminate();
             throw new Exception("Can't open window");
@@ -27,17 +27,17 @@ public class Window {
         GLFW.glfwSetFramebufferSizeCallback(window, (win, w, h) -> {
             GL33.glViewport(0, 0, w, h);
         });
-        game.init(H,W);
+        Game.init(H,W);
         while (!GLFW.glfwWindowShouldClose(window)) {
-            current = (current+1)%(int) game.frames;
+            current = (current+1)%(int) Game.frames;
             // Key input management
             if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS)
                 GLFW.glfwSetWindowShouldClose(window, true);
             GL33.glClearColor(0f, 0f, 0f, 1f);
             GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
 
-            game.render();
-            game.update(current);
+            Game.render();
+            Game.update(current);
 
             GLFW.glfwSwapBuffers(window);
             GLFW.glfwPollEvents();

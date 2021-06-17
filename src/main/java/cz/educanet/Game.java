@@ -13,8 +13,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public class Game {
-    float imgWidth = 288;
-    float imgHeight = 48;
+    float imgWidth = 1152;
+    float imgHeight = 192;
     float imgSize = 2;
     float frames = 6;
 

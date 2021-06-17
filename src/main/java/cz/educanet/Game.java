@@ -1,8 +1,8 @@
 package cz.educanet;
 
 
+import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
@@ -13,160 +13,115 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public class Game {
+    float imgWidth = 288;
+    float imgHeight = 48;
+    float imgSize = 2;
+    float frames = 6;
 
-    private static final float[] vertices = {
-            0.5f, 0.5f, 0.0f, // 0 -> Top right
-            0.5f, -0.5f, 0.0f, // 1 -> Bottom right
-            -0.5f, -0.5f, 0.0f, // 2 -> Bottom left
-            -0.5f, 0.5f, 0.0f, // 3 -> Top left
-    };
+    private FloatBuffer tb1 = BufferUtils.createFloatBuffer(8);
 
-    public static final float[] colors = {
+    private float[] vertices;
+
+    private final float[] colors = {
             1.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
     };
 
-    public static final float[] textures1 = {
-            1/6f, 0.0f,
-            1/6f, 1.0f,
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-    };
-
-    public static final float[] textures2 = {
-            2/6f, 0.0f,
-            2/6f, 1.0f,
-            1/6f, 1.0f,
-            1/6f, 0.0f,
-    };
-
-    public static final float[] textures3 = {
-            3/6f, 0.0f,
-            3/6f, 1.0f,
-            2/6f, 1.0f,
-            2/6f, 0.0f,
-    };
-
-    public static final float[] textures4 = {
-            4/6f, 0.0f,
-            4/6f, 1.0f,
-            3/6f, 1.0f,
-            3/6f, 0.0f,
-    };
-
-    public static final float[] textures5 = {
-            5/6f, 0.0f,
-            5/6f, 1.0f,
-            4/6f, 1.0f,
-            4/6f, 0.0f,
-    };
-
-    public static final float[] textures6 = {
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            5/6f, 1.0f,
-            5/6f, 0.0f,
-    };
-
-    private static final int[] indices = {
+    private final int[] indices = {
             0, 1, 3, // First triangle
             1, 2, 3 // Second triangle
     };
+    private float[] textures = {
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+    };
+    private int squareVaoId;
+    private int squareVboId;
+    private int squareEboId;
+    private int colorsId;
+    private int textureIndicesId;
+    private int uniformColorLocation;
+    private int uniformMatrixLocation;
+    private int textureId;
 
-    private static int squareVaoId;
-    private static int squareVboId;
-    private static int squareEboId;
-    public static int textureIndicesId;
+    private Matrix4f matrix = new Matrix4f()
+            .identity();
+    private FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
-    private static int textureId;
+    public void setVertices(float width,float height){
+        float x = -imgWidth*imgSize/width;
+        float y = imgHeight*imgSize/height;
+        float sizeX = 2*Math.abs(x);
+        float sizeY = 2*Math.abs(y);
+        System.out.println(x + " : " + y+" : " +sizeX+ " : "+sizeY);
+        vertices = new float[]{
 
-    public static void init(long window) {
-        // Setup shaders
+                x + sizeX, y, 0.0f, //right top
+                x + sizeX, y - sizeY, 0.0f, //right bottom
+                x, y - sizeY, 0.0f, //left bottom
+                x, y, 0.0f,//left top
+        };
+    }
+
+    public void init(int width,int height) {
+        setVertices(width*frames, height);
         Shaders.initShaders();
+        loadImage();
 
-        // Generate all the ids
+        uniformColorLocation = GL33.glGetUniformLocation(Shaders.shaderProgramId, "outColor");
+        uniformMatrixLocation = GL33.glGetUniformLocation(Shaders.shaderProgramId, "matrix");
         squareVaoId = GL33.glGenVertexArrays();
         squareVboId = GL33.glGenBuffers();
         squareEboId = GL33.glGenBuffers();
+        colorsId = GL33.glGenBuffers();
         textureIndicesId = GL33.glGenBuffers();
-
         textureId = GL33.glGenTextures();
-        loadImage();
 
-        // Tell OpenGL we are currently using this object (vaoId)
         GL33.glBindVertexArray(squareVaoId);
 
-        // Tell OpenGL we are currently writing to this buffer (eboId)
         GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, squareEboId);
         IntBuffer ib = BufferUtils.createIntBuffer(indices.length)
                 .put(indices)
                 .flip();
         GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, ib, GL33.GL_STATIC_DRAW);
 
-        // Change to VBOs...
-        // Tell OpenGL we are currently writing to this buffer (vboId)
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, squareVboId);
 
         FloatBuffer fb = BufferUtils.createFloatBuffer(vertices.length)
                 .put(vertices)
                 .flip();
 
-        // Send the buffer (positions) to the GPU
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER, fb, GL33.GL_STATIC_DRAW);
         GL33.glVertexAttribPointer(0, 3, GL33.GL_FLOAT, false, 0, 0);
         GL33.glEnableVertexAttribArray(0);
 
-        // Clear the buffer from the memory (it's saved now on the GPU, no need for it here)
-        MemoryUtil.memFree(fb);
 
-
-
-    }
-
-    public static void render(long window) {
         GL33.glUseProgram(Shaders.shaderProgramId);
+        GL33.glUniform3f(uniformColorLocation, 1.0f, 0.0f, 0.0f);
 
-        // Draw using the glDrawElements function
-        GL33.glBindTexture(GL33.GL_TEXTURE_2D, textureId);
-        GL33.glBindVertexArray(squareVaoId);
-        GL33.glDrawElements(GL33.GL_TRIANGLES, indices.length, GL33.GL_UNSIGNED_INT, 0);
-    }
-    public static double frame = 1;
-    public static void update(long window) {
+        matrix.get(matrixBuffer);
+        GL33.glUniformMatrix4fv(uniformMatrixLocation, false, matrixBuffer);
 
-        float[] textures = {};
-        float[][] sets = {Game.textures1, Game.textures2, Game.textures3, Game.textures4, Game.textures5, Game.textures6};
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, fb, GL33.GL_STATIC_DRAW);
+        GL33.glVertexAttribPointer(0,3, GL33.GL_FLOAT, false, 0, 0);
+        GL33.glEnableVertexAttribArray(0);
 
-        switch((int) Game.frame) {
-            case 1 -> {
-                textures = textures1;
-            }
-            case 2 -> {
-                textures = textures2;
-            }
-            case 3 -> {
-                textures = textures3;
-            }
-            case 4 -> {
-                textures = textures4;
-            }
-            case 5 -> {
-                textures = textures5;
-            }
-            case 6 -> {
-                textures = textures6;
-            }
-        }
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, colorsId);
 
-        if (frame < 6) {
-            frame += 0.025;
-        } else {
-            frame = 1;
-        }
+        FloatBuffer cb = BufferUtils.createFloatBuffer(colors.length)
+                .put(colors)
+                .flip();
+
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, cb, GL33.GL_STATIC_DRAW);
+        GL33.glVertexAttribPointer(1,3, GL33.GL_FLOAT, false, 0, 0);
+        GL33.glEnableVertexAttribArray(1);
 
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, textureIndicesId);
+
         FloatBuffer tb = BufferUtils.createFloatBuffer(textures.length)
                 .put(textures)
                 .flip();
@@ -174,10 +129,40 @@ public class Game {
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER, tb, GL33.GL_STATIC_DRAW);
         GL33.glVertexAttribPointer(2, 2, GL33.GL_FLOAT, false, 0, 0);
         GL33.glEnableVertexAttribArray(2);
-        MemoryUtil.memFree(tb);
+
+        MemoryUtil.memFree(fb);
     }
 
-    private static void loadImage() {
+    public void render() {
+        matrix.get(matrixBuffer);
+
+        GL33.glUniformMatrix4fv(uniformMatrixLocation, false, matrixBuffer);
+        GL33.glUseProgram(Shaders.shaderProgramId);
+        GL33.glBindVertexArray(squareVaoId);
+        GL33.glDrawElements(GL33.GL_TRIANGLES, vertices.length, GL33.GL_UNSIGNED_INT, 0);
+    }
+
+    public void update(float frame) {
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, textureIndicesId);
+        tb1.clear().put(textures).flip();
+        float leftX = frame/frames;
+        float rightX = (frame+1)/frames;
+
+        textures = new float[] {
+                rightX, 0.0f,// 0 -> Top right - tohle se musi menit kdyz chce jinou cast obrazku
+                rightX, 1.0f,// 1 -> Bottom right
+                leftX, 1.0f,// 2 -> Bottom left
+                leftX, 0.0f,// 3 -> Top left
+        };
+
+
+        // Send the buffer (positions) to the GPU
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, tb1, GL33.GL_STATIC_DRAW);
+        GL33.glVertexAttribPointer(2, 2, GL33.GL_FLOAT, false, 0, 0);
+        GL33.glEnableVertexAttribArray(2);
+    }
+
+    public void loadImage() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
